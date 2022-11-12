@@ -13,7 +13,7 @@ impl<'p> Matcher for LiteralMatcher<'p> {
         let result = text.find(self.pattern);
 
         match result {
-            Some(start) => return Some(Match { start: start, end: start + self.pattern.len() }),
+            Some(start) => return Some(Match::new(start, start + self.pattern.len())),
             None => return None,
         }
     }

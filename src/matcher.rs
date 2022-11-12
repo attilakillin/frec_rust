@@ -1,4 +1,8 @@
-use crate::{types::{Error, Match}, flags::CompileFlags, parser::{Parser, ParseResult}, matchers::{LiteralMatcher, LongestMatcher}};
+use crate::{
+    types::{Error, Match},
+    matchers::{LiteralMatcher, LongestMatcher},
+    preprocessor::{Preprocessor, Suggestion}
+};
 
 /// A trait to be implemented for each concrete matcher type.
 /// Can be used to find the compiled pattern in a given text.
@@ -22,13 +26,18 @@ impl<'p> Regex<'p> {
     /// 
     /// The function determines which internal matcher works best on the
     /// given pattern and instantiates it to be used during matching.
-    pub fn new(pattern: &str, flags: CompileFlags) -> Result<Regex, Error> {
-        let parse_result = Parser::new(pattern, flags).determine_type();
+    pub fn new(pattern: &str) -> Result<Regex, Error> {
+        let parse_result = Preprocessor::new(pattern).determine_type();
 
         return match parse_result {
-            ParseResult::UseLiteral => Ok(Regex { matcher: Box::new(LiteralMatcher::new(pattern)) }),
-            ParseResult::UseLongest => Ok(Regex { matcher: Box::new(LongestMatcher::new(pattern)) }),
-            _ => Err(Error::Syntax("Not implemented!")),
+            Ok(Suggestion::Literal) => Ok(Regex {
+                matcher: Box::new(LiteralMatcher::new(pattern))
+            }),
+            Ok(Suggestion::Longest) => Ok(Regex {
+                matcher: Box::new(LongestMatcher::new(pattern))
+            }),
+            Ok(_) => Err(Error::Syntax("Not implemented!")),
+            Err(reason) => Err(reason),
         };
     }
 
