@@ -13,6 +13,7 @@ pub struct LongestMatcher {
     original: Regex,
     best_fragment: String,
     max_length: isize,
+    length_known: bool,
 }
 
 pub struct PrefixMatcher {

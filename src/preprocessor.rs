@@ -32,6 +32,8 @@ impl<'p> Preprocessor<'p> {
         }
 
         // Inner state variables.
+        let is_multiline = self.pattern.contains('\n') || self.pattern.contains("\n");
+
         let mut is_literal = true;
         let mut is_longest = true;
         let mut is_prefix = true;
@@ -56,7 +58,11 @@ impl<'p> Preprocessor<'p> {
                     is_literal = false;
                 }
 
-                if is_longest && ['*', '+', '?', '(', '|', '{'].contains(&c) {
+                if is_longest && ['(', '|', '{'].contains(&c) {
+                    is_longest = false;
+                }
+
+                if is_longest && is_multiline && ['*', '+', '?'].contains(&c) {
                     is_longest = false;
                 }
             }
