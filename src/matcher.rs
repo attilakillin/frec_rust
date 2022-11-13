@@ -1,6 +1,6 @@
 use crate::{
     types::{Error, Match},
-    matchers::{LiteralMatcher, LongestMatcher},
+    matchers::{LiteralMatcher, LongestMatcher, NothingMatcher},
     preprocessor::{Preprocessor, Suggestion}
 };
 
@@ -35,6 +35,9 @@ impl<'p> Regex<'p> {
             }),
             Ok(Suggestion::Longest) => Ok(Regex {
                 matcher: Box::new(LongestMatcher::new(pattern))
+            }),
+            Ok(Suggestion::Nothing) => Ok(Regex {
+                matcher: Box::new(NothingMatcher::new(pattern))
             }),
             Ok(_) => Err(Error::Syntax("Not implemented!")),
             Err(reason) => Err(reason),

@@ -1,4 +1,5 @@
 /// Contains the various error types the application can produce.
+#[derive(Debug)]
 pub enum Error {
     /// Syntax error: the referenced string could not be parsed as a valid regex pattern.
     Syntax(&'static str),
