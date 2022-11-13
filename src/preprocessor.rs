@@ -26,39 +26,48 @@ impl<'p> Preprocessor<'p> {
     /// Preprocesses the stored pattern, and determines which heuristic should be used
     /// during text searching. May return an error, if the pattern is not a valid pattern.
     pub fn determine_type(&self) -> Result<Suggestion, Error> {
+        // We try to properly compile the pattern first, and see if it succeeds.
         if Regex::new(self.pattern).is_err() {
             return Err(Error::Syntax("Preliminary compile check failed."));
         }
 
+        // Inner state variables.
         let mut is_literal = true;
         let mut is_longest = true;
-
+        let mut is_prefix = true;
         let mut state_escaped = false;
 
-        for c in self.pattern.chars() {
+        // We go through the pattern char by char.
+        for (i, c) in self.pattern.char_indices() {
+            // A '\' changes the escaped state.
             if c == '\\' {
                 state_escaped = !state_escaped;
             }
 
-            match c {
-                '.' | '[' | '^' | '$' | '*' => is_literal &= state_escaped,
-                '+' | '?' | '(' | '|' | '{' => is_literal &= !(state_escaped),
-                _ => (),
+            // We can only use the prefix heuristic if the first two chars aren't special chars.
+            if (i == 0 || i == 1) && ['\\', '.', '[', '^', '$', '*', '+', '?', '(', '|', '{'].contains(&c) {
+                is_prefix = false;
             }
 
-            match c {
-                '*' => is_longest &= state_escaped,
-                '{' | '+' | '?' | '|' => is_longest &= !(state_escaped),
-                _ => (),
+            // The presence of the following special characters might prevent us
+            // from using the literal and longest heuristics.
+            if !state_escaped {
+                if is_literal && ['.', '[', '^', '$', '*', '+', '?', '(', '|', '{'].contains(&c) {
+                    is_literal = false;
+                }
+
+                if is_longest && ['*', '+', '?', '(', '|', '{'].contains(&c) {
+                    is_longest = false;
+                }
             }
         }
 
-        if is_literal {
-            return Ok(Suggestion::Literal);
-        } else if is_longest {
-            return Ok(Suggestion::Longest);
-        } else {
-            return Ok(Suggestion::Nothing);
-        }
+        // Return the correct suggestion.
+        return match () {
+            () if is_literal => Ok(Suggestion::Literal),
+            () if is_longest => Ok(Suggestion::Longest),
+            () if is_prefix => Ok(Suggestion::Prefix),
+            () => Ok(Suggestion::Nothing)
+        };
     }
 }

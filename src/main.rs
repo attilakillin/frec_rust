@@ -2,7 +2,7 @@ use frec_rust::{matcher::Regex};
 
 
 fn main() {
-    let pattern = "Long Fox";
+    let pattern = "Long Fox.ju";
     let text = "The Long Fox jumps over the lazy fence";
 
     let matcher = Regex::new(pattern).ok().unwrap();

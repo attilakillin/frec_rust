@@ -8,24 +8,24 @@ pub enum Error {
 #[derive(Debug)]
 pub struct Match {
     /// The start of the match (inclusive).
-    start: usize,
+    start: isize,
     /// The end of the match (exclusive).
-    end: usize,
+    end: isize,
 }
 
 impl Match {
     /// Creates a new match instance with the given start and end.
-    pub fn new(start: usize, end: usize) -> Self {
+    pub fn new(start: isize, end: isize) -> Self {
         return Match { start, end }
     }
 
     /// Returns the start of the match (inclusive).
-    pub fn start(&self) -> usize {
+    pub fn start(&self) -> isize {
         return self.start;
     }
 
     /// Returns the end of the match (exclusive).
-    pub fn end(&self) -> usize {
+    pub fn end(&self) -> isize {
         return self.end;
     }
 }

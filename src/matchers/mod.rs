@@ -1,15 +1,14 @@
-use std::collections::HashMap;
+use regex::Regex;
 
 pub mod literal;
 pub mod longest;
 
 pub struct LiteralMatcher<'p> {
     pattern: &'p str,
-    //good_shifts: Vec<usize>,
-    //bad_shifts: HashMap<char, usize>,
 }
 
-pub struct LongestMatcher<'p> {
-    pattern: &'p str,
-    best_fragment: &'p str,
+pub struct LongestMatcher {
+    original: Regex,
+    best_fragment: String,
+    max_length: isize,
 }
