@@ -5,6 +5,7 @@ use crate::{matcher::Matcher, types::Match};
 use super::NothingMatcher;
 
 impl NothingMatcher {
+    /// Create a new matcher with the supplied pattern.
     pub fn new(pattern: &str) -> NothingMatcher {
         return NothingMatcher {
             original: Regex::new(pattern).unwrap()
@@ -13,12 +14,14 @@ impl NothingMatcher {
 }
 
 impl Matcher for NothingMatcher {
+    /// Find the compiled pattern in the given text.
     fn find(&self, text: &str) -> Option<Match> {
         let result = self.original.find(text);
 
-        return match result {
-            Some(content) => Some(Match::new(content.start() as isize, content.end() as isize )),
-            None => None
-        };
+        if let Some(content) = result {
+            return Some(Match::from(content.start(), content.end()));
+        } else {
+            return None;
+        }
     }
 }

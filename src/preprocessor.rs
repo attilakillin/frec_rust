@@ -51,17 +51,20 @@ impl<'p> Preprocessor<'p> {
                 is_prefix = false;
             }
 
-            // The presence of the following special characters might prevent us
-            // from using the literal and longest heuristics.
+            // If the character isn't escaped, the presence of the following special characters
+            // might prevent us from using the literal and longest heuristics.
             if !state_escaped {
+                // Any of the following special characters are illegal in a literal string.
                 if is_literal && ['.', '[', '^', '$', '*', '+', '?', '(', '|', '{'].contains(&c) {
                     is_literal = false;
                 }
 
+                // Any of the following are illegal in the longest matcher too.
                 if is_longest && ['(', '|', '{'].contains(&c) {
                     is_longest = false;
                 }
 
+                // These are only illegal if the pattern can cross over line boundaries.
                 if is_longest && is_multiline && ['*', '+', '?'].contains(&c) {
                     is_longest = false;
                 }

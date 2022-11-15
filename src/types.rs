@@ -20,6 +20,11 @@ impl Match {
         return Match { start, end }
     }
 
+    /// Creates a new match instance from unsized indices.
+    pub fn from(start: usize, end: usize) -> Self {
+        return Match { start: start as isize, end: end as isize }
+    }
+
     /// Returns the start of the match (inclusive).
     pub fn start(&self) -> isize {
         return self.start;

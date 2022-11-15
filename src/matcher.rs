@@ -29,21 +29,20 @@ impl<'p> Regex<'p> {
     pub fn new(pattern: &str) -> Result<Regex, Error> {
         let parse_result = Preprocessor::new(pattern).determine_type();
 
-        return match parse_result {
-            Ok(Suggestion::Literal) => Ok(Regex {
-                matcher: Box::new(LiteralMatcher::new(pattern))
-            }),
-            Ok(Suggestion::Longest) => Ok(Regex {
-                matcher: Box::new(LongestMatcher::new(pattern))
-            }),
-            Ok(Suggestion::Prefix) => Ok(Regex {
-                matcher: Box::new(PrefixMatcher::new(pattern))
-            }),
-            Ok(Suggestion::Nothing) => Ok(Regex {
-                matcher: Box::new(NothingMatcher::new(pattern))
-            }),
-            Err(reason) => Err(reason),
+        // If the preprocessing failed, return with an error.
+        if let Err(reason) = parse_result {
+            return Err(reason);
+        }
+
+        // Else instantiate the correct matcher, and return with it.
+        let matcher: Box<dyn Matcher> = match parse_result.unwrap() {
+            Suggestion::Literal => Box::new(LiteralMatcher::new(pattern)),
+            Suggestion::Longest => Box::new(LongestMatcher::new(pattern)),
+            Suggestion::Prefix => Box::new(PrefixMatcher::new(pattern)),
+            Suggestion::Nothing => Box::new(NothingMatcher::new(pattern))
         };
+
+        return Ok(Regex { matcher });
     }
 
     /// Determines whether the given text contains any matches for the compiled pattern.

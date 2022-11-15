@@ -1,4 +1,4 @@
-use std::cmp::{max, min};
+use std::cmp::min;
 
 use regex::Regex;
 
@@ -7,17 +7,24 @@ use crate::{types::Match, matcher::Matcher};
 use super::LongestMatcher;
 
 impl LongestMatcher {
+    /// Create a new matcher with the supplied pattern.
     pub fn new(pattern: &str) -> LongestMatcher {
+        // Create library-supplied matcher.
         let original = Regex::new(pattern).unwrap();
 
-        let mut current = String::from("");
+        // Create properties of the final matcher.
         let mut best_fragment = String::from("");
         let mut max_length = 0;
         let mut length_known = true;
 
+        // Create state variables.
+        let mut current = String::from("");
         let mut state_escaped = false;
         let mut iter = pattern.chars();
+
+        // While there's a character to parse from the pattern.
         while let Some(c) = iter.next() {
+            // If something was escaped, push to the current fragment and continue.
             if state_escaped {
                 current.push(c);
                 max_length += 1;
@@ -25,52 +32,70 @@ impl LongestMatcher {
                 continue;
             }
 
+            // On a '\', set the escaped flag and continue.
             if c == '\\' {
                 state_escaped = true;
                 continue;
             }
 
+            // Unless a char is a recognized special char, push to the current fragment
+            // and continue.
             if !['.', '[', '+', '?', '*'].contains(&c) {
                 current.push(c);
                 max_length += 1;
                 continue;
             }
 
+            // The remainder of this loop handles the special characters mentioned above.
+
+            // If the modifier makes the previous character optional, pop it from the fragment.
             if c == '*' || c == '?' {
                 current.pop();
             }
 
+            // With every special character, the current fragment ends. Save it if it is
+            // longer than our current best fragment.
             if current.len() > best_fragment.len() {
                 best_fragment = current;
                 current = String::from("");
             }
 
+            // If the char was '.', we also increase the max length.
             if c == '.' {
                 max_length += 1;
                 continue;
             }
 
+            // If it was a '+' or a '*', we now can't know the length of a match.
             if c == '+' || c == '*' {
                 length_known = false;
                 continue;
             }
 
+            // If it was a '?', there's nothing to do.
             if c == '?' {
                 continue;
             }
 
+            // If it was a '[', we parse the text up until the closing bracket.
+            // The characters inside are all different options, and as such, we
+            // cannot create a fragment from them.
             if c == '[' {
-                let mut depth = 1;
+                let mut inside_escaped = false;
                 while let Some(c) = iter.next() {
-                    if c == '[' {
-                        depth += 1;
+                    // An escaped character can't be the closing bracket.
+                    if inside_escaped {
+                        inside_escaped = false;
+                        continue;
                     }
 
+                    // Manage escaped state.
+                    if c == '\\' {
+                        inside_escaped = true;
+                    }
+
+                    // Break on a closing bracket.
                     if c == ']' {
-                        depth -= 1;
-                    }
-
-                    if depth == 0 {
                         break;
                     }
                 }
@@ -80,56 +105,63 @@ impl LongestMatcher {
             }
         }
 
+        // Return a matcher with the properties created above.
         return LongestMatcher { original, best_fragment, max_length, length_known };
     }
 }
 
 impl Matcher for LongestMatcher {
+    /// Find the compiled pattern in the given text.
     fn find(&self, text: &str) -> Option<Match> {
+        // Create a mutable text slice and set global offset.
         let mut text = text;
         let mut global_offset = 0;
 
+        // This loop searches for match candidates. If a candidate is found,
+        // but it is not a proper match, the start of the slice will be adjusted
+        // to after the candidate's end. We iterate until there's no more text to match.
         while text.len() > 0 {
+            // Search for the best fragment. If it's not present, no match can be found.
             let result = text.find(&self.best_fragment);
-
             if result.is_none() {
                 return None;
             }
 
+            // Else set the start and end coordinates.
             let mut start = result.unwrap();
             let mut end = start + self.best_fragment.len();
 
             if self.length_known {
-                let delta = self.max_length - (end - start) as isize;
+                // If we know the length of the pattern, broaden the matching range
+                // with the following delta.
+                let delta = self.max_length - (end - start);
 
-                start = max(0 as isize, start as isize - delta) as usize;
-                end = min(text.len() as isize, end as isize + delta) as usize;
+                start = if start < delta { 0 } else { start - delta };
+                end = min(text.len(), end + delta);
             } else {
-                let prev_lf = text[..start].rfind('\n');
-                let next_lf = text[end..].find('\n');
-                
-                start = prev_lf.unwrap_or(0);
-                end = next_lf.unwrap_or(text.len());
+                // If we don't know the length, broaden the matching range to the
+                // entire line the candidate was found in.
+                start = text[..start].rfind('\n').unwrap_or(0);
+                end = text[end..].find('\n').unwrap_or(text.len());
             }
 
-            let section = &text[start..end];
+            // Now we try using the original matcher on this excerpt of the text.
+            let result = self.original.find(&text[start..end]);
 
-            let result = self.original.find(section);
-
+            // If we found something, return with the match.
             if result.is_some() {
-                global_offset += start;
+                let offset = global_offset + start;
 
                 let content = result.unwrap();
-                return Some(Match::new(
-                    (content.start() + global_offset) as isize,
-                    (content.end() + global_offset) as isize
-                ));
+                return Some(Match::from(content.start() + offset, content.end() + offset));
             }
 
+            // Else adjust search range, and continue with the next iteration.
             text = &text[end..];
             global_offset += end;
         }
 
+        // Return none if we ran out of text to search.
         return None;
     }
 }
