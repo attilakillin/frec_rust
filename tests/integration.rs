@@ -1,4 +1,6 @@
-use frec_rust::{self, matcher::Regex};
+use std::slice;
+
+use frec_rust::{self, matcher::Regex, multimatcher::MultiRegex};
 
 const INPUTS: &'static [(&str, &str, Option<(isize, isize)>)] = &[
     ("pattern", "text with pattern", Some((10, 17))),
@@ -16,10 +18,29 @@ const INPUTS: &'static [(&str, &str, Option<(isize, isize)>)] = &[
     ("[^s]yy*", "text with \nyd", Some((10, 12))),
 ];
 
+/// Test that on a number of input combinations, the (single-pattern) matcher
+/// correctly finds the first match.
 #[test]
 fn test_parameterized() {
     for (pattern, text, expected) in INPUTS {
         let regex = Regex::new(pattern).unwrap();
+
+        let actual = regex.find(text);
+
+        assert_eq!(expected.is_some(), actual.is_some());
+        if let Some(content) = actual {
+            assert_eq!(expected.unwrap().0, content.start());
+            assert_eq!(expected.unwrap().1, content.end());
+        }
+    }
+}
+
+/// Test that on a number of input combinations, and with only one pattern supplied,
+/// the multi-pattern matcher correctly finds the first match.
+#[test]
+fn test_multi_parameterized() {
+    for (pattern, text, expected) in INPUTS {
+        let regex = MultiRegex::new(slice::from_ref(pattern)).unwrap();
 
         let actual = regex.find(text);
 

@@ -10,6 +10,7 @@ pub struct Preprocessor<'p> {
 }
 
 /// Contains the various heuristic implementations that can be used for pattern matching.
+#[derive(PartialEq, Clone)]
 pub enum Suggestion {
     Literal,
     Longest,

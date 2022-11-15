@@ -1,8 +1,10 @@
 /// Contains the various error types the application can produce.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Error {
     /// Syntax error: the referenced string could not be parsed as a valid regex pattern.
     Syntax(&'static str),
+    /// Argument error: a function was called with an invalid argument.
+    Argument(&'static str),
 }
 
 /// Contains the start and end offsets of a pattern match.
