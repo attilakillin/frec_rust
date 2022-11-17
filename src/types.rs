@@ -8,7 +8,7 @@ pub enum Error {
 }
 
 /// Contains the start and end offsets of a pattern match.
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Match {
     /// The start of the match (inclusive).
     start: isize,

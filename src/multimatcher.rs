@@ -1,7 +1,7 @@
 use crate::{
     matcher::{Matcher},
     preprocessor::{Preprocessor, Suggestion},
-    types::{Error, Match}, matchers::{LiteralMatcher, LongestMatcher, PrefixMatcher, NothingMatcher}, multimatchers::LiteralMultiMatcher, 
+    types::{Error, Match}, matchers::{LiteralMatcher, LongestMatcher, PrefixMatcher, NothingMatcher}, multimatchers::{LiteralMultiMatcher, NothingMultiMatcher}, 
 };
 
 pub struct MultiRegex<'p> {
@@ -53,7 +53,7 @@ impl<'p> MultiRegex<'p> {
         // If any one pattern cannot be used with the literal or the longest matcher,
         // we'll run the naive algorithm that checks each pattern sequentially.
         if types.iter().any(|t| [Suggestion::Nothing, Suggestion::Prefix].contains(t.as_ref().unwrap())) {
-            return Err(Error::Syntax("Not implemented!"));
+            return Ok(MultiRegex { matcher: Box::new(NothingMultiMatcher::new(patterns)) });
         }
 
         // Otherwise, every pattern uses either the longest or the literal heuristics, but

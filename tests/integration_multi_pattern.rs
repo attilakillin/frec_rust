@@ -7,6 +7,10 @@ const INPUTS: &'static [(&[&str], &str, Option<(isize, isize)>)] = &[
     (&["beta", "delta"], "alpha beta gamma delta", Some((6, 10))),
     (&["delta", "beta"], "alpha beta gamma delta", Some((6, 10))),
     (&["gamma", "beta", "delta", "alpha"], "alpha beta gamma delta", Some((0, 5))),
+
+    (&["pattern", "not longest \n x+"], "text with pattern", Some((10, 17))),
+    (&["pattern", "not longest (text)?"], "text with pattern", Some((10, 17))),
+    (&["pat+er*n", "(text)? not even prefix"], "text with pattern", Some((10, 17))),
 ];
 
 #[test]
