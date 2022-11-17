@@ -1,4 +1,4 @@
-use frec_rust::multimatcher::MultiRegex;
+use fregex::multimatcher::MultiRegex;
 
 
 const INPUTS: &'static [(&[&str], &str, Option<(isize, isize)>)] = &[
