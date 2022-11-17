@@ -1,7 +1,7 @@
 use crate::{
-    types::{Error, Match},
     matchers::{LiteralMatcher, LongestMatcher, NothingMatcher, PrefixMatcher},
-    preprocessor::{Preprocessor, Suggestion}
+    preprocessor::{Preprocessor, Suggestion},
+    types::{Error, Match}
 };
 
 /// A trait to be implemented for each concrete matcher type.
@@ -21,8 +21,7 @@ pub struct Regex<'p> {
 }
 
 impl<'p> Regex<'p> {
-    /// Create a new regular expression matcher from the given pattern and
-    /// compilation flags.
+    /// Create a new regular expression matcher from the given pattern.
     /// 
     /// The function determines which internal matcher works best on the
     /// given pattern and instantiates it to be used during matching.

@@ -10,6 +10,7 @@ pub struct Preprocessor<'p> {
 }
 
 /// Contains the various heuristic implementations that can be used for pattern matching.
+#[derive(PartialEq, Clone)]
 pub enum Suggestion {
     Literal,
     Longest,
@@ -32,7 +33,7 @@ impl<'p> Preprocessor<'p> {
         }
 
         // Inner state variables.
-        let is_multiline = self.pattern.contains('\n') || self.pattern.contains("\n");
+        let is_multiline = self.pattern.contains('\n') || self.pattern.contains("\\n");
 
         let mut is_literal = true;
         let mut is_longest = true;
