@@ -4,16 +4,20 @@ use crate::types::Match;
 use super::{LiteralMultiMatcher, wumanber::WuManber};
 
 
-impl<'p> LiteralMultiMatcher<'p> {
+impl LiteralMultiMatcher {
     /// Create a new matcher with the supplied patterns.
-    pub fn new(patterns: &'p [&'p str]) -> LiteralMultiMatcher<'p> {
+    pub fn new(patterns: &[&str]) -> LiteralMultiMatcher {
         return LiteralMultiMatcher { matcher: WuManber::new(patterns, 2) };
     }
 }
 
-impl<'p> Matcher for LiteralMultiMatcher<'p> {
+impl Matcher for LiteralMultiMatcher {
     /// Finds any one of the compiled patterns in the given text.
     fn find(&self, text: &str) -> Option<Match> {
-        return self.matcher.find(text);
+        if let Some((content, _)) = self.matcher.find(text) {
+            return Some(content);
+        }
+
+        return None;
     }
 }

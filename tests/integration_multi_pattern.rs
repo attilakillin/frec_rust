@@ -11,6 +11,10 @@ const INPUTS: &'static [(&[&str], &str, Option<(isize, isize)>)] = &[
     (&["pattern", "not longest \n x+"], "text with pattern", Some((10, 17))),
     (&["pattern", "not longest (text)?"], "text with pattern", Some((10, 17))),
     (&["pat+er*n", "(text)? not even prefix"], "text with pattern", Some((10, 17))),
+
+    (&["pattern", "al?pha+"], "alpha beta gamma delta", Some((0, 5))),
+    (&["longest", "or li*[txyz]eral"], "this should work with longest", Some((22, 29))),
+    (&["[ac][xi][ea] is the best", "x*box", "card?"], "another cia is the best", Some((8, 23))),
 ];
 
 #[test]

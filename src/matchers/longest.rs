@@ -105,8 +105,52 @@ impl LongestMatcher {
             }
         }
 
+        // If we processed the whole string and there's still an unfinished fragment
+        // stored in the current string, check that too.
+        if current.len() > best_fragment.len() {
+            best_fragment = current;
+        }
+
         // Return a matcher with the properties created above.
         return LongestMatcher { original, best_fragment, max_length, length_known };
+    }
+
+    /// Returns the best fragment stored in the matcher.
+    pub fn best_fragment(&self) -> &str {
+        return &self.best_fragment;
+    }
+
+    /// Given a text and a potential match candidate, try to locate the full match.
+    /// The second return value signifies the position before which no more matches can occur.
+    pub fn locate_near(&self, text: &str, pos: usize) -> (Option<Match>, usize) {
+        // Set the start and end coordinates.
+        let mut start = pos;
+        let mut end = start + self.best_fragment.len();
+
+        if self.length_known {
+            // If we know the length of the pattern, broaden the matching range
+            // with the following delta.
+            let delta = self.max_length - (end - start);
+
+            start = if start < delta { 0 } else { start - delta };
+            end = min(text.len(), end + delta);
+        } else {
+            // If we don't know the length, broaden the matching range to the
+            // entire line the candidate was found in.
+            start = text[..start].rfind('\n').unwrap_or(0);
+            end = text[end..].find('\n').unwrap_or(text.len());
+        }
+
+        // Now we try using the original matcher on this excerpt of the text.
+        let result = self.original.find(&text[start..end]);
+
+        // If we found something, return with the match, else return with none.
+        if result.is_some() {
+            let content = result.unwrap();
+            return (Some(Match::from(content.start() + start, content.end() + start)), end);
+        } else {
+            return (None, end);
+        }
     }
 }
 
@@ -115,7 +159,7 @@ impl Matcher for LongestMatcher {
     fn find(&self, text: &str) -> Option<Match> {
         // Create a mutable text slice and set global offset.
         let mut text = text;
-        let mut global_offset = 0;
+        let mut global_offset: isize = 0;
 
         // This loop searches for match candidates. If a candidate is found,
         // but it is not a proper match, the start of the slice will be adjusted
@@ -127,38 +171,18 @@ impl Matcher for LongestMatcher {
                 return None;
             }
 
-            // Else set the start and end coordinates.
-            let mut start = result.unwrap();
-            let mut end = start + self.best_fragment.len();
-
-            if self.length_known {
-                // If we know the length of the pattern, broaden the matching range
-                // with the following delta.
-                let delta = self.max_length - (end - start);
-
-                start = if start < delta { 0 } else { start - delta };
-                end = min(text.len(), end + delta);
-            } else {
-                // If we don't know the length, broaden the matching range to the
-                // entire line the candidate was found in.
-                start = text[..start].rfind('\n').unwrap_or(0);
-                end = text[end..].find('\n').unwrap_or(text.len());
-            }
-
-            // Now we try using the original matcher on this excerpt of the text.
-            let result = self.original.find(&text[start..end]);
+            // Locate the possible match.
+            let (result, end) = self.locate_near(text, result.unwrap());
 
             // If we found something, return with the match.
             if result.is_some() {
-                let offset = global_offset + start;
-
                 let content = result.unwrap();
-                return Some(Match::from(content.start() + offset, content.end() + offset));
+                return Some(Match::new(content.start() + global_offset, content.end() + global_offset));
             }
 
             // Else adjust search range, and continue with the next iteration.
             text = &text[end..];
-            global_offset += end;
+            global_offset += end as isize;
         }
 
         // Return none if we ran out of text to search.

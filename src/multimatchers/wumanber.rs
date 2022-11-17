@@ -2,9 +2,9 @@ use std::{cmp::{max, min_by, min}, collections::HashMap};
 use crate::types::Match;
 
 /// Wu-Manber compilation struct.
-pub struct WuManber<'p> {
+pub struct WuManber {
     /// A reference to every pattern, necessary during the searching phase.
-    patterns: &'p [&'p str],
+    patterns: Vec<String>,
     /// Shift (or jump) table for each b-long block present in the patterns.
     shift_table: HashMap<String, usize>,
     /// Pattern prefix table for each pattern that starts with the key block.
@@ -25,10 +25,10 @@ struct PrefixHash {
     prefix: String,
 }
 
-impl<'p> WuManber<'p> {
+impl WuManber {
     /// Creates a new Wu-Manber search struct with the given patterns. The b argument
     /// can be used to define the block size used. Usually, 2 or 3 is recommended.
-    pub fn new(patterns: &'p [&'p str], b: usize) -> WuManber<'p> {
+    pub fn new(patterns: &[&str], b: usize) -> WuManber {
         // Create variables for commonly used numbers below.
         let min_length = patterns
             .iter()
@@ -38,7 +38,7 @@ impl<'p> WuManber<'p> {
 
         if min_length < b {
             // TODO Handle this case - by default, WM shouldn't be used in this scenario.
-            panic!("Minimum pattern length used in WM algorithm is too small!");
+            panic!("Minimum pattern length used in WM algorithm is too small! ('{:?}')", patterns);
         }
 
         // Create default shift and initialize block shift table.
@@ -72,12 +72,15 @@ impl<'p> WuManber<'p> {
             }
         }
 
+        // Copy patterns to save in the struct.
+        let patterns = patterns.iter().map(|p| p.to_string()).collect();
+
         // Return with the compiled struct.
         return WuManber { patterns, shift_table, prefix_table, min_length, default_shift, b };
     }
 
     /// Finds any one of the compiled patterns in the given text.
-    pub fn find(&self, text: &str) -> Option<Match> {
+    pub fn find(&self, text: &str) -> Option<(Match, usize)> {
         let mut pos = self.min_length - 1;
 
         // We loop while there's text to read.
@@ -94,13 +97,13 @@ impl<'p> WuManber<'p> {
                 for candidate in self.prefix_table.get(block).unwrap() {
                     // If any candidate matches, try comparing the text with the referenced pattern.
                     if candidate.prefix == prefix {
-                        let refd_pattern = self.patterns[candidate.pattern_id];
+                        let refd_pattern = &self.patterns[candidate.pattern_id];
                         let start = prefix_start;
                         let end = start + refd_pattern.len();
 
                         // If the whole pattern matches, return with a successful match.
                         if refd_pattern == &text[start..end] {
-                            return Some(Match::from(start, end));
+                            return Some((Match::from(start, end), candidate.pattern_id));
                         }
                     }
                 }

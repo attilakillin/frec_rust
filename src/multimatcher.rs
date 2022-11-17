@@ -1,7 +1,9 @@
 use crate::{
     matcher::{Matcher},
+    matchers::{LiteralMatcher, LongestMatcher, PrefixMatcher, NothingMatcher},
+    multimatchers::{LiteralMultiMatcher, LongestMultiMatcher, NothingMultiMatcher}, 
     preprocessor::{Preprocessor, Suggestion},
-    types::{Error, Match}, matchers::{LiteralMatcher, LongestMatcher, PrefixMatcher, NothingMatcher}, multimatchers::{LiteralMultiMatcher, NothingMultiMatcher}, 
+    types::{Error, Match},
 };
 
 pub struct MultiRegex<'p> {
@@ -58,7 +60,7 @@ impl<'p> MultiRegex<'p> {
 
         // Otherwise, every pattern uses either the longest or the literal heuristics, but
         // we can't use the Wu-Manber matcher directly, as at least one pattern isn't literal.
-        return Err(Error::Syntax("Not implemented!"));
+        return Ok(MultiRegex { matcher: Box::new(LongestMultiMatcher::new(patterns)) });
     }
 
     /// Determines whether the given text contains any matches for the compiled patterns.
