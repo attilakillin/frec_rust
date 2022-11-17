@@ -1,7 +1,7 @@
 use crate::{
     matcher::{Matcher},
     preprocessor::{Preprocessor, Suggestion},
-    types::{Error, Match}, matchers::{LiteralMatcher, LongestMatcher, PrefixMatcher, NothingMatcher}, 
+    types::{Error, Match}, matchers::{LiteralMatcher, LongestMatcher, PrefixMatcher, NothingMatcher}, multimatchers::LiteralMultiMatcher, 
 };
 
 pub struct MultiRegex<'p> {
@@ -13,7 +13,7 @@ impl<'p> MultiRegex<'p> {
     /// 
     /// The function determines which internal matcher works best on the
     /// given patterns and instantiates it to be used during matching.
-    pub fn new(patterns: &[&'p str]) -> Result<MultiRegex<'p>, Error> {
+    pub fn new(patterns: &'p [&'p str]) -> Result<MultiRegex<'p>, Error> {
         // Assert that at least one pattern is present
         if patterns.len() == 0 {
             return Err(Error::Argument("No patterns were specified!"));
@@ -47,7 +47,7 @@ impl<'p> MultiRegex<'p> {
 
         // If all of the patterns are literal, we can use the Wu-Manber matcher directly.
         if types.iter().all(|t| t.clone().unwrap() == Suggestion::Literal) {
-            return Err(Error::Syntax("Not implemented!"));
+            return Ok(MultiRegex { matcher: Box::new(LiteralMultiMatcher::new(patterns)) });
         }
 
         // If any one pattern cannot be used with the literal or the longest matcher,

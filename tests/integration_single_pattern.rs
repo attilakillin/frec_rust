@@ -21,7 +21,7 @@ const INPUTS: &'static [(&str, &str, Option<(isize, isize)>)] = &[
 /// Test that on a number of input combinations, the (single-pattern) matcher
 /// correctly finds the first match.
 #[test]
-fn test_parameterized() {
+fn test_each_pattern_single_base() {
     for (pattern, text, expected) in INPUTS {
         let regex = Regex::new(pattern).unwrap();
 
@@ -38,7 +38,7 @@ fn test_parameterized() {
 /// Test that on a number of input combinations, and with only one pattern supplied,
 /// the multi-pattern matcher correctly finds the first match.
 #[test]
-fn test_multi_parameterized() {
+fn test_each_pattern_multi_base() {
     for (pattern, text, expected) in INPUTS {
         let regex = MultiRegex::new(slice::from_ref(pattern)).unwrap();
 
