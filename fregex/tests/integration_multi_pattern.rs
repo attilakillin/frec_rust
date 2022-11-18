@@ -1,7 +1,7 @@
-use fregex::multimatcher::MultiRegex;
+use fregex::MultiRegex;
 
 
-const INPUTS: &'static [(&[&str], &str, Option<(isize, isize)>)] = &[
+const INPUTS: &'static [(&[&str], &str, Option<(usize, usize)>)] = &[
     (&["pattern", "not present"], "text with pattern", Some((10, 17))),
     (&["alpha", "beta"], "alpha beta gamma delta", Some((0, 5))),
     (&["beta", "delta"], "alpha beta gamma delta", Some((6, 10))),

@@ -1,39 +1,41 @@
+/// Represents a pattern match on a given text.
+/// 
+/// The lifetime parameter `'t` refers to the lifetime of the matched text.
+#[derive(Clone, Copy, Debug)]
+pub struct Match<'t> {
+    /// The starting byte offset of the match (inclusive).
+    start: usize,
+    /// The ending byte offset of the match (exclusive).
+    end: usize,
+    /// The text that was matched between the starting and ending offset.
+    matched_text: &'t str
+}
+
 /// Contains the various error types the application can produce.
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug)]
 pub enum Error {
     /// Syntax error: the referenced string could not be parsed as a valid regex pattern.
-    Syntax(&'static str),
-    /// Argument error: a function was called with an invalid argument.
-    Argument(&'static str),
+    Syntax(&'static str)
 }
 
-/// Contains the start and end offsets of a pattern match.
-#[derive(Debug, Clone, Copy)]
-pub struct Match {
-    /// The start of the match (inclusive).
-    start: isize,
-    /// The end of the match (exclusive).
-    end: isize,
-}
-
-impl Match {
+impl<'t> Match<'t> {
     /// Creates a new match instance with the given start and end.
-    pub fn new(start: isize, end: isize) -> Self {
-        return Match { start, end }
+    pub(crate) fn new(start: usize, end: usize, matched_text: &'t str) -> Self {
+        return Match { start, end, matched_text }
     }
 
-    /// Creates a new match instance from unsized indices.
-    pub fn from(start: usize, end: usize) -> Self {
-        return Match { start: start as isize, end: end as isize }
-    }
-
-    /// Returns the start of the match (inclusive).
-    pub fn start(&self) -> isize {
+    /// Returns the starting byte offset of the match (inclusive).
+    pub fn start(&self) -> usize {
         return self.start;
     }
 
-    /// Returns the end of the match (exclusive).
-    pub fn end(&self) -> isize {
+    /// Returns the ending byte offset of the match (exclusive).
+    pub fn end(&self) -> usize {
         return self.end;
+    }
+
+    /// Returns the matched text.
+    pub fn as_str(&self) -> &'t str {
+        return self.matched_text;
     }
 }

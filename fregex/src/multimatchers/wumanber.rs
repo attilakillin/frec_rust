@@ -25,7 +25,7 @@ struct PrefixHash {
     prefix: String,
 }
 
-impl WuManber {
+impl<'t> WuManber {
     /// Creates a new Wu-Manber search struct with the given patterns. The b argument
     /// can be used to define the block size used. Usually, 2 or 3 is recommended.
     pub fn new(patterns: &[&str], b: usize) -> WuManber {
@@ -80,7 +80,7 @@ impl WuManber {
     }
 
     /// Finds any one of the compiled patterns in the given text.
-    pub fn find(&self, text: &str) -> Option<(Match, usize)> {
+    pub fn find(&self, text: &'t str) -> Option<(Match<'t>, usize)> {
         let mut pos = self.min_length - 1;
 
         // We loop while there's text to read.
@@ -103,7 +103,7 @@ impl WuManber {
 
                         // If the whole pattern matches, return with a successful match.
                         if refd_pattern == &text[start..end] {
-                            return Some((Match::from(start, end), candidate.pattern_id));
+                            return Some((Match::new(start, end, &text[start..end]), candidate.pattern_id));
                         }
                     }
                 }

@@ -1,24 +1,19 @@
 use crate::{
-    matcher::{Matcher},
     matchers::{LiteralMatcher, LongestMatcher, PrefixMatcher, NothingMatcher},
     multimatchers::{LiteralMultiMatcher, LongestMultiMatcher, NothingMultiMatcher}, 
     preprocessor::{Preprocessor, Suggestion},
-    types::{Error, Match},
+    types::{Error, Match}, MultiRegex, matcher::Matcher,
 };
 
-pub struct MultiRegex<'p> {
-    matcher: Box<dyn Matcher + 'p>,
-}
-
-impl<'p> MultiRegex<'p> {
+impl<'p, 't> MultiRegex<'p, 't> {
     /// Create a new regular expression matcher from the given patterns.
     /// 
     /// The function determines which internal matcher works best on the
     /// given patterns and instantiates it to be used during matching.
-    pub fn new(patterns: &'p [&'p str]) -> Result<MultiRegex<'p>, Error> {
+    pub fn new(patterns: &'p [&'p str]) -> Result<MultiRegex<'p, '_>, Error> {
         // Assert that at least one pattern is present
         if patterns.len() == 0 {
-            return Err(Error::Argument("No patterns were specified!"));
+            panic!("No patterns were provided!");
         }
 
         // Preprocess each pattern.
@@ -64,13 +59,13 @@ impl<'p> MultiRegex<'p> {
     }
 
     /// Determines whether the given text contains any matches for the compiled patterns.
-    pub fn is_match(&self, text: &str) -> bool {
+    pub fn is_match(&self, text: &'t str) -> bool {
         return self.matcher.find(text).is_some();
     }
     
     /// Finds the first match of the compiled patterns present
     /// in the text, or returns None if no matches are found.
-    pub fn find(&self, text: &str) -> Option<Match> {
+    pub fn find(&self, text: &'t str) -> Option<Match<'t>> {
         return self.matcher.find(text);
     }
 }

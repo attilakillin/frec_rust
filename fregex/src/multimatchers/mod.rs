@@ -25,7 +25,7 @@ pub struct LongestMultiMatcher {
 
 /// A multimatcher implementation that can process any and every pattern,
 /// but the resulting search may not be as quick as other implementations.
-pub struct NothingMultiMatcher<'p> {
+pub struct NothingMultiMatcher<'p, 't> {
     /// One matcher for each input pattern.
-    matchers: Vec<Box<dyn Matcher + 'p>>
+    matchers: Vec<Box<dyn Matcher<'t> + 'p>>
 }

@@ -23,16 +23,16 @@ impl LongestMultiMatcher {
     }
 }
 
-impl Matcher for LongestMultiMatcher {
+impl<'t> Matcher<'t> for LongestMultiMatcher {
     /// Finds any one of the compiled patterns in the given text.
-    fn find(&self, text: &str) -> Option<Match> {
+    fn find(&self, text: &'t str) -> Option<Match<'t>> {
         // The only difference in this function, and the single pattern longest matching one
         // is that this matcher finds candidates from multiple patterns, and we need to locate
         // a potential match using the correct single pattern matcher.
 
         // Create a mutable text slice and set global offset.
         let mut text = text;
-        let mut global_offset: isize = 0;
+        let mut global_offset: usize = 0;
 
         // This loop searches for match candidates. If a candidate is found,
         // but it is not a proper match, the start of the slice will be adjusted
@@ -53,12 +53,15 @@ impl Matcher for LongestMultiMatcher {
             // If we found something, return with the match.
             if result.is_some() {
                 let content = result.unwrap();
-                return Some(Match::new(content.start() + global_offset, content.end() + global_offset));
+                let match_start = content.start() + global_offset;
+                let match_end = content.end() + global_offset;
+                let matched_text = content.as_str();
+                return Some(Match::new(match_start, match_end, matched_text));
             }
 
             // Else adjust search range, and continue with the next iteration.
             text = &text[end..];
-            global_offset += end as isize;
+            global_offset += end;
         }
 
         // Return none if we ran out of text to search.

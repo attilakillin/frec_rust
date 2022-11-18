@@ -9,13 +9,15 @@ impl<'p> LiteralMatcher<'p> {
     }
 }
 
-impl<'p> Matcher for LiteralMatcher<'p> {
+impl<'p, 't> Matcher<'t> for LiteralMatcher<'p> {
     /// Find the compiled pattern in the given text.
-    fn find(&self, text: &str) -> Option<Match> {
+    fn find(&self, text: &'t str) -> Option<Match<'t>> {
         let result = text.find(self.pattern);
 
         if let Some(start) = result {
-            return Some(Match::from(start, start + self.pattern.len()));
+            let end = start + self.pattern.len();
+            let matched_text = &text[start..end];
+            return Some(Match::new(start, end, matched_text));
         } else {
             return None;
         }

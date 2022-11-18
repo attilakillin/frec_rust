@@ -6,7 +6,7 @@ use crate::{types::Match, matcher::Matcher};
 
 use super::LongestMatcher;
 
-impl LongestMatcher {
+impl<'t> LongestMatcher {
     /// Create a new matcher with the supplied pattern.
     pub fn new(pattern: &str) -> LongestMatcher {
         // Create library-supplied matcher.
@@ -122,7 +122,7 @@ impl LongestMatcher {
 
     /// Given a text and a potential match candidate, try to locate the full match.
     /// The second return value signifies the position before which no more matches can occur.
-    pub fn locate_near(&self, text: &str, pos: usize) -> (Option<Match>, usize) {
+    pub fn locate_near(&self, text: &'t str, pos: usize) -> (Option<Match<'t>>, usize) {
         // Set the start and end coordinates.
         let mut start = pos;
         let mut end = start + self.best_fragment.len();
@@ -147,19 +147,22 @@ impl LongestMatcher {
         // If we found something, return with the match, else return with none.
         if result.is_some() {
             let content = result.unwrap();
-            return (Some(Match::from(content.start() + start, content.end() + start)), end);
+            let match_start = content.start() + start;
+            let match_end = content.end() + start;
+            let matched_text = &text[match_start..match_end];
+            return (Some(Match::new(match_start, match_end, matched_text)), end);
         } else {
             return (None, end);
         }
     }
 }
 
-impl Matcher for LongestMatcher {
+impl<'t> Matcher<'t> for LongestMatcher {
     /// Find the compiled pattern in the given text.
-    fn find(&self, text: &str) -> Option<Match> {
+    fn find(&self, text: &'t str) -> Option<Match<'t>> {
         // Create a mutable text slice and set global offset.
         let mut text = text;
-        let mut global_offset: isize = 0;
+        let mut global_offset: usize = 0;
 
         // This loop searches for match candidates. If a candidate is found,
         // but it is not a proper match, the start of the slice will be adjusted
@@ -177,12 +180,15 @@ impl Matcher for LongestMatcher {
             // If we found something, return with the match.
             if result.is_some() {
                 let content = result.unwrap();
-                return Some(Match::new(content.start() + global_offset, content.end() + global_offset));
+                let match_start = content.start() + global_offset;
+                let match_end = content.end() + global_offset;
+                let matched_text = content.as_str();
+                return Some(Match::new(match_start, match_end, matched_text));
             }
 
             // Else adjust search range, and continue with the next iteration.
             text = &text[end..];
-            global_offset += end as isize;
+            global_offset += end;
         }
 
         // Return none if we ran out of text to search.

@@ -1,8 +1,8 @@
 use std::slice;
 
-use fregex::{matcher::Regex, multimatcher::MultiRegex};
+use fregex::{Regex, MultiRegex};
 
-const INPUTS: &'static [(&str, &str, Option<(isize, isize)>)] = &[
+const INPUTS: &'static [(&str, &str, Option<(usize, usize)>)] = &[
     ("pattern", "text with pattern", Some((10, 17))),
     ("many", "many many many many", Some((0, 4))),
     ("x", "find the first x", Some((15, 16))),
