@@ -2,4 +2,5 @@
 
 members = [
     "fregex",
+    "fregex_grep"
 ]

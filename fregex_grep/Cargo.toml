@@ -1,0 +1,10 @@
+[package]
+name = "fregex_grep"
+version = "1.0.0"
+description = "A barebones implementation of grep using the fregex single and multi-pattern matchers"
+authors = ["Killin Attila"]
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.0.26", features = ["derive"] }
+fregex = { path = "../fregex" }
