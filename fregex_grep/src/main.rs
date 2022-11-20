@@ -1,6 +1,6 @@
 use clap::Parser;
 use fregex::{Regex, MultiRegex, RegexMatcher};
-use text::read_text;
+use text::{read_text, read_text_lines};
 use std::process::exit;
 
 use crate::args::Args;
@@ -29,22 +29,33 @@ fn main() {
         }
     };
 
-    // Read text and find every single match.
-    let string = read_text(&args.file);
-    let mut text: &str = &string;
-    let mut offset = 0;
+    if args.singleline {
+        // Read text line-by-line and find every single match.
+        for line in read_text_lines(&args.file) {
+            if let Ok(line) = line {
+                if let Some(result) = matcher.find(&line) {
+                    println!("{}", result.as_str());
+                }
+            }
+        }
+    } else {
+        // Read text in whole and find every single match.
+        let string = read_text(&args.file);
+        let mut text: &str = &string;
+        let mut offset = 0;
 
-    while text.len() > 0 {
-        if let Some(result) = matcher.find(&text) {
-            let start = result.start() + offset;
-            let end = result.end() + offset;
+        while text.len() > 0 {
+            if let Some(result) = matcher.find(&text) {
+                let start = result.start() + offset;
+                let end = result.end() + offset;
 
-            text = &text[result.end()..];
-            offset += result.end();
+                text = &text[result.end()..];
+                offset += result.end();
 
-            println!("({}, {})", start, end);
-        } else {
-            break;
+                println!("({}, {})", start, end);
+            } else {
+                break;
+            }
         }
     }
 }
