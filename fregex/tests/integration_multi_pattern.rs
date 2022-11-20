@@ -1,4 +1,4 @@
-use fregex::MultiRegex;
+use fregex::{MultiRegex, RegexMatcher};
 
 
 const INPUTS: &'static [(&[&str], &str, Option<(usize, usize)>)] = &[
@@ -7,6 +7,7 @@ const INPUTS: &'static [(&[&str], &str, Option<(usize, usize)>)] = &[
     (&["beta", "delta"], "alpha beta gamma delta", Some((6, 10))),
     (&["delta", "beta"], "alpha beta gamma delta", Some((6, 10))),
     (&["gamma", "beta", "delta", "alpha"], "alpha beta gamma delta", Some((0, 5))),
+    (&["very very long", "short"], "short", Some((0, 5))),
 
     (&["pattern", "not longest \n x+"], "text with pattern", Some((10, 17))),
     (&["pattern", "not longest (text)?"], "text with pattern", Some((10, 17))),

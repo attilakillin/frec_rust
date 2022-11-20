@@ -81,7 +81,7 @@ impl WuManber {
 
     /// Finds any one of the compiled patterns in the given text.
     pub fn find<'t>(&self, text: &'t str) -> Option<(Match<'t>, usize)> {
-        let mut pos = self.min_length - 1;
+        let mut pos = self.min_length;
 
         // We loop while there's text to read.
         while pos <= text.len() {

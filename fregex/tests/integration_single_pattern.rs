@@ -1,6 +1,6 @@
 use std::slice;
 
-use fregex::{Regex, MultiRegex};
+use fregex::{Regex, MultiRegex, RegexMatcher};
 
 const INPUTS: &'static [(&str, &str, Option<(usize, usize)>)] = &[
     ("pattern", "text with pattern", Some((10, 17))),

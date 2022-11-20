@@ -2,7 +2,7 @@ use crate::{
     matchers::{LiteralMatcher, LongestMatcher, NothingMatcher, PrefixMatcher},
     preprocessor::{Preprocessor, Suggestion},
     types::{Error, Match},
-    Regex
+    Regex, RegexMatcher
 };
 
 /// A trait to be implemented for each concrete matcher type.
@@ -38,15 +38,17 @@ impl<'p> Regex<'p> {
 
         return Ok(Regex { matcher });
     }
+}
 
+impl RegexMatcher for Regex<'_> {
     /// Determines whether the given text contains any matches for the compiled pattern.
-    pub fn is_match<'t>(&self, text: &'t str) -> bool {
+    fn is_match<'t>(&self, text: &'t str) -> bool {
         return self.matcher.find(text).is_some();
     }
     
     /// Finds the first match of the compiled pattern present
     /// in the text, or returns None if no matches are found.
-    pub fn find<'t>(&self, text: &'t str) -> Option<Match<'t>> {
+    fn find<'t>(&self, text: &'t str) -> Option<Match<'t>> {
         return self.matcher.find(text);
     }
 }
