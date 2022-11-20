@@ -1,7 +1,8 @@
 use crate::{
     matchers::{LiteralMatcher, LongestMatcher, NothingMatcher, PrefixMatcher},
     preprocessor::{Preprocessor, Suggestion},
-    types::{Error, Match}
+    types::{Error, Match},
+    Regex, RegexMatcher
 };
 
 /// A trait to be implemented for each concrete matcher type.
@@ -11,13 +12,7 @@ use crate::{
 /// to achieve as much optimization during searching as possible.
 pub trait Matcher {
     /// Find the compiled pattern in the given text.
-    fn find(&self, text: &str) -> Option<Match>;
-}
-
-/// The base struct to use for regular expression matching.
-pub struct Regex<'p> {
-    /// A concrete matcher that implements the Matcher trait.
-    matcher: Box<dyn Matcher + 'p>,
+    fn find<'t>(&self, text: &'t str) -> Option<Match<'t>>;
 }
 
 impl<'p> Regex<'p> {
@@ -25,7 +20,7 @@ impl<'p> Regex<'p> {
     /// 
     /// The function determines which internal matcher works best on the
     /// given pattern and instantiates it to be used during matching.
-    pub fn new(pattern: &str) -> Result<Regex, Error> {
+    pub fn new(pattern: &'p str) -> Result<Regex, Error> {
         let parse_result = Preprocessor::new(pattern).determine_type();
 
         // If the preprocessing failed, return with an error.
@@ -43,15 +38,17 @@ impl<'p> Regex<'p> {
 
         return Ok(Regex { matcher });
     }
+}
 
+impl RegexMatcher for Regex<'_> {
     /// Determines whether the given text contains any matches for the compiled pattern.
-    pub fn is_match(&self, text: &str) -> bool {
+    fn is_match<'t>(&self, text: &'t str) -> bool {
         return self.matcher.find(text).is_some();
     }
     
     /// Finds the first match of the compiled pattern present
     /// in the text, or returns None if no matches are found.
-    pub fn find(&self, text: &str) -> Option<Match> {
+    fn find<'t>(&self, text: &'t str) -> Option<Match<'t>> {
         return self.matcher.find(text);
     }
 }

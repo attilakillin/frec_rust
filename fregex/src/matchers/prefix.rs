@@ -26,7 +26,7 @@ impl PrefixMatcher {
 
 impl Matcher for PrefixMatcher {
     /// Find the compiled pattern in the given text.
-    fn find(&self, text: &str) -> Option<Match> {
+    fn find<'t>(&self, text: &'t str) -> Option<Match<'t>> {
         // Find a candidate based on our prefix string.
         let candidate = text.find(&self.prefix);
         if candidate.is_none() {
@@ -39,7 +39,10 @@ impl Matcher for PrefixMatcher {
 
         // Return the (correctly offset) result.
         if let Some(content) = result {
-            return Some(Match::from(content.start() + start, content.end() + start));
+            let match_start = content.start() + start;
+            let match_end = content.end() + start;
+            let matched_text = &text[match_start..match_end];
+            return Some(Match::new(match_start, match_end, matched_text));
         } else {
             return None;
         }

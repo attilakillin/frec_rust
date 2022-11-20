@@ -31,8 +31,8 @@ impl<'p> NothingMultiMatcher<'p> {
 
 impl<'p> Matcher for NothingMultiMatcher<'p> {
     /// Finds any one of the compiled patterns in the given text.
-    fn find(&self, text: &str) -> Option<Match> {
-        let mut best_match: Option<Match> = None;
+    fn find<'t>(&self, text: &'t str) -> Option<Match<'t>> {
+        let mut best_match: Option<Match<'t>> = None;
 
         // Try matching each pattern, and store the match with the earliest start.
         for matcher in &self.matchers {

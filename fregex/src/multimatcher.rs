@@ -1,14 +1,9 @@
 use crate::{
-    matcher::{Matcher},
     matchers::{LiteralMatcher, LongestMatcher, PrefixMatcher, NothingMatcher},
     multimatchers::{LiteralMultiMatcher, LongestMultiMatcher, NothingMultiMatcher}, 
     preprocessor::{Preprocessor, Suggestion},
-    types::{Error, Match},
+    types::{Error, Match}, MultiRegex, matcher::Matcher, RegexMatcher,
 };
-
-pub struct MultiRegex<'p> {
-    matcher: Box<dyn Matcher + 'p>,
-}
 
 impl<'p> MultiRegex<'p> {
     /// Create a new regular expression matcher from the given patterns.
@@ -18,7 +13,7 @@ impl<'p> MultiRegex<'p> {
     pub fn new(patterns: &'p [&'p str]) -> Result<MultiRegex<'p>, Error> {
         // Assert that at least one pattern is present
         if patterns.len() == 0 {
-            return Err(Error::Argument("No patterns were specified!"));
+            panic!("No patterns were provided!");
         }
 
         // Preprocess each pattern.
@@ -62,15 +57,17 @@ impl<'p> MultiRegex<'p> {
         // we can't use the Wu-Manber matcher directly, as at least one pattern isn't literal.
         return Ok(MultiRegex { matcher: Box::new(LongestMultiMatcher::new(patterns)) });
     }
+}
 
+impl RegexMatcher for MultiRegex<'_> {
     /// Determines whether the given text contains any matches for the compiled patterns.
-    pub fn is_match(&self, text: &str) -> bool {
+    fn is_match<'t>(&self, text: &'t str) -> bool {
         return self.matcher.find(text).is_some();
     }
     
     /// Finds the first match of the compiled patterns present
     /// in the text, or returns None if no matches are found.
-    pub fn find(&self, text: &str) -> Option<Match> {
+    fn find<'t>(&self, text: &'t str) -> Option<Match<'t>> {
         return self.matcher.find(text);
     }
 }

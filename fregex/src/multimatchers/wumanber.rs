@@ -80,8 +80,8 @@ impl WuManber {
     }
 
     /// Finds any one of the compiled patterns in the given text.
-    pub fn find(&self, text: &str) -> Option<(Match, usize)> {
-        let mut pos = self.min_length - 1;
+    pub fn find<'t>(&self, text: &'t str) -> Option<(Match<'t>, usize)> {
+        let mut pos = self.min_length;
 
         // We loop while there's text to read.
         while pos <= text.len() {
@@ -103,7 +103,7 @@ impl WuManber {
 
                         // If the whole pattern matches, return with a successful match.
                         if refd_pattern == &text[start..end] {
-                            return Some((Match::from(start, end), candidate.pattern_id));
+                            return Some((Match::new(start, end, &text[start..end]), candidate.pattern_id));
                         }
                     }
                 }

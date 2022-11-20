@@ -15,11 +15,14 @@ impl NothingMatcher {
 
 impl Matcher for NothingMatcher {
     /// Find the compiled pattern in the given text.
-    fn find(&self, text: &str) -> Option<Match> {
+    fn find<'t>(&self, text: &'t str) -> Option<Match<'t>> {
         let result = self.original.find(text);
 
         if let Some(content) = result {
-            return Some(Match::from(content.start(), content.end()));
+            let start = content.start();
+            let end = content.end();
+            let matched_text = &text[start..end];
+            return Some(Match::new(start, end, matched_text));
         } else {
             return None;
         }
