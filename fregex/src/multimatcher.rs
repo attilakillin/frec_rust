@@ -5,12 +5,12 @@ use crate::{
     types::{Error, Match}, MultiRegex, matcher::Matcher,
 };
 
-impl<'p, 't> MultiRegex<'p, 't> {
+impl<'p> MultiRegex<'p> {
     /// Create a new regular expression matcher from the given patterns.
     /// 
     /// The function determines which internal matcher works best on the
     /// given patterns and instantiates it to be used during matching.
-    pub fn new(patterns: &'p [&'p str]) -> Result<MultiRegex<'p, '_>, Error> {
+    pub fn new(patterns: &'p [&'p str]) -> Result<MultiRegex<'p>, Error> {
         // Assert that at least one pattern is present
         if patterns.len() == 0 {
             panic!("No patterns were provided!");
@@ -59,13 +59,13 @@ impl<'p, 't> MultiRegex<'p, 't> {
     }
 
     /// Determines whether the given text contains any matches for the compiled patterns.
-    pub fn is_match(&self, text: &'t str) -> bool {
+    pub fn is_match<'t>(&self, text: &'t str) -> bool {
         return self.matcher.find(text).is_some();
     }
     
     /// Finds the first match of the compiled patterns present
     /// in the text, or returns None if no matches are found.
-    pub fn find(&self, text: &'t str) -> Option<Match<'t>> {
+    pub fn find<'t>(&self, text: &'t str) -> Option<Match<'t>> {
         return self.matcher.find(text);
     }
 }

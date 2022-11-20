@@ -13,9 +13,9 @@ impl NothingMatcher {
     }
 }
 
-impl<'t> Matcher<'t> for NothingMatcher {
+impl Matcher for NothingMatcher {
     /// Find the compiled pattern in the given text.
-    fn find(&self, text: &'t str) -> Option<Match<'t>> {
+    fn find<'t>(&self, text: &'t str) -> Option<Match<'t>> {
         let result = self.original.find(text);
 
         if let Some(content) = result {

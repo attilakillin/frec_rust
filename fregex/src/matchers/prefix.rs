@@ -24,9 +24,9 @@ impl PrefixMatcher {
     }
 }
 
-impl<'t> Matcher<'t> for PrefixMatcher {
+impl Matcher for PrefixMatcher {
     /// Find the compiled pattern in the given text.
-    fn find(&self, text: &'t str) -> Option<Match<'t>> {
+    fn find<'t>(&self, text: &'t str) -> Option<Match<'t>> {
         // Find a candidate based on our prefix string.
         let candidate = text.find(&self.prefix);
         if candidate.is_none() {

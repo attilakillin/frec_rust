@@ -10,12 +10,12 @@ use crate::{
 /// 
 /// Specific matchers may be used for specific pattern structures
 /// to achieve as much optimization during searching as possible.
-pub trait Matcher<'t> {
+pub trait Matcher {
     /// Find the compiled pattern in the given text.
-    fn find(&self, text: &'t str) -> Option<Match<'t>>;
+    fn find<'t>(&self, text: &'t str) -> Option<Match<'t>>;
 }
 
-impl<'p, 't> Regex<'p, 't> {
+impl<'p> Regex<'p> {
     /// Create a new regular expression matcher from the given pattern.
     /// 
     /// The function determines which internal matcher works best on the
@@ -40,13 +40,13 @@ impl<'p, 't> Regex<'p, 't> {
     }
 
     /// Determines whether the given text contains any matches for the compiled pattern.
-    pub fn is_match(&self, text: &'t str) -> bool {
+    pub fn is_match<'t>(&self, text: &'t str) -> bool {
         return self.matcher.find(text).is_some();
     }
     
     /// Finds the first match of the compiled pattern present
     /// in the text, or returns None if no matches are found.
-    pub fn find(&self, text: &'t str) -> Option<Match<'t>> {
+    pub fn find<'t>(&self, text: &'t str) -> Option<Match<'t>> {
         return self.matcher.find(text);
     }
 }

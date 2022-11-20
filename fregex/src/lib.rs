@@ -13,9 +13,9 @@ pub mod types;
 /// The underlying algorithm depends on the structure of the pattern, which is
 /// analyzed during the compilation phase. This implementation dynamically chooses
 /// the best performing algorithm for the given pattern.
-pub struct Regex<'p, 't> {
+pub struct Regex<'p> {
     /// A specific matcher implementation that will be used for searching.
-    matcher: Box<dyn Matcher<'t> + 'p>,
+    matcher: Box<dyn Matcher + 'p>,
 }
 
 /// A compiled regular expression pattern matcher. Can be used to find the first
@@ -25,7 +25,7 @@ pub struct Regex<'p, 't> {
 /// The underlying algorithm depends on the structures of the patterns, which are
 /// analyzed during the compilation phase. This implementation dynamically chooses
 /// the best performing algorithm for any given set of patterns.
-pub struct MultiRegex<'p, 't> {
+pub struct MultiRegex<'p> {
     /// A specific matcher implementation that will be used for searching.
-    matcher: Box<dyn Matcher<'t> + 'p>,
+    matcher: Box<dyn Matcher + 'p>,
 }

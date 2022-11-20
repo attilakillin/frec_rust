@@ -157,9 +157,9 @@ impl<'t> LongestMatcher {
     }
 }
 
-impl<'t> Matcher<'t> for LongestMatcher {
+impl Matcher for LongestMatcher {
     /// Find the compiled pattern in the given text.
-    fn find(&self, text: &'t str) -> Option<Match<'t>> {
+    fn find<'t>(&self, text: &'t str) -> Option<Match<'t>> {
         // Create a mutable text slice and set global offset.
         let mut text = text;
         let mut global_offset: usize = 0;

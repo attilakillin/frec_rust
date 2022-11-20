@@ -9,9 +9,9 @@ impl<'p> LiteralMatcher<'p> {
     }
 }
 
-impl<'p, 't> Matcher<'t> for LiteralMatcher<'p> {
+impl<'p> Matcher for LiteralMatcher<'p> {
     /// Find the compiled pattern in the given text.
-    fn find(&self, text: &'t str) -> Option<Match<'t>> {
+    fn find<'t>(&self, text: &'t str) -> Option<Match<'t>> {
         let result = text.find(self.pattern);
 
         if let Some(start) = result {

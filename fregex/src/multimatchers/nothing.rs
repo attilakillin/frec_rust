@@ -8,9 +8,9 @@ use crate::{
 use super::NothingMultiMatcher;
 
 
-impl<'p> NothingMultiMatcher<'p, '_> {
+impl<'p> NothingMultiMatcher<'p> {
     /// Create a new matcher with the supplied patterns.
-    pub fn new(patterns: &'p [&'p str]) -> NothingMultiMatcher<'p, '_> {
+    pub fn new(patterns: &'p [&'p str]) -> NothingMultiMatcher<'p> {
         let mut matchers: Vec<Box<dyn Matcher + 'p>> = vec![];
 
         // For each pattern, determine type and construct matcher.
@@ -29,9 +29,9 @@ impl<'p> NothingMultiMatcher<'p, '_> {
     }
 }
 
-impl<'p, 't> Matcher<'t> for NothingMultiMatcher<'p, 't> {
+impl<'p> Matcher for NothingMultiMatcher<'p> {
     /// Finds any one of the compiled patterns in the given text.
-    fn find(&self, text: &'t str) -> Option<Match<'t>> {
+    fn find<'t>(&self, text: &'t str) -> Option<Match<'t>> {
         let mut best_match: Option<Match<'t>> = None;
 
         // Try matching each pattern, and store the match with the earliest start.

@@ -11,9 +11,9 @@ impl LiteralMultiMatcher {
     }
 }
 
-impl<'t> Matcher<'t> for LiteralMultiMatcher {
+impl Matcher for LiteralMultiMatcher {
     /// Finds any one of the compiled patterns in the given text.
-    fn find(&self, text: &'t str) -> Option<Match<'t>> {
+    fn find<'t>(&self, text: &'t str) -> Option<Match<'t>> {
         if let Some((content, _)) = self.matcher.find(text) {
             return Some(content);
         }

@@ -23,9 +23,9 @@ impl LongestMultiMatcher {
     }
 }
 
-impl<'t> Matcher<'t> for LongestMultiMatcher {
+impl Matcher for LongestMultiMatcher {
     /// Finds any one of the compiled patterns in the given text.
-    fn find(&self, text: &'t str) -> Option<Match<'t>> {
+    fn find<'t>(&self, text: &'t str) -> Option<Match<'t>> {
         // The only difference in this function, and the single pattern longest matching one
         // is that this matcher finds candidates from multiple patterns, and we need to locate
         // a potential match using the correct single pattern matcher.
