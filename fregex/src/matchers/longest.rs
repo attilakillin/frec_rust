@@ -138,7 +138,10 @@ impl<'t> LongestMatcher {
             // If we don't know the length, broaden the matching range to the
             // entire line the candidate was found in.
             start = text[..start].rfind('\n').unwrap_or(0);
-            end = text[end..].find('\n').unwrap_or(text.len());
+            end = match text[end..].find('\n') {
+                Some(pos) => end + pos,
+                None => text.len()
+            };
         }
 
         // Now we try using the original matcher on this excerpt of the text.
