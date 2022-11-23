@@ -25,10 +25,10 @@ fn test_multiple_patterns() {
 
         let actual = regex.find(text);
 
-        assert_eq!(expected.is_some(), actual.is_some());
+        assert_eq!(expected.is_some(), actual.is_some(), "Expected Some(...) for {:?}", patterns);
         if let Some(content) = actual {
-            assert_eq!(expected.unwrap().0, content.start());
-            assert_eq!(expected.unwrap().1, content.end());
+            assert_eq!(expected.unwrap().0, content.start(), "Expected {} for {:?}", expected.unwrap().0, patterns);
+            assert_eq!(expected.unwrap().1, content.end(), "Expected {} for {:?}", expected.unwrap().1, patterns);
         }
     }
 }

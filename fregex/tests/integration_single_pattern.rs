@@ -13,6 +13,8 @@ const INPUTS: &'static [(&str, &str, Option<(usize, usize)>)] = &[
     ("[ai][cx]e", "words with the letter e but only axe matches", Some((33, 36))),
     ("ba(se)+", "multiple ba ba but only one is base", Some((31, 35))),
     ("plus+", "only works with extended plus text", Some((25, 29))),
+    ("C[a-z]*a", "Short parts Circa", Some((12, 17))),
+    ("[Pp]refix.*:", "Long string with a prefix: somewhere", Some((19, 26))),
 
     ("a\nb+", "text with a\nbbb", Some((10, 15))),
     ("[^s]yy*", "text with \nyd", Some((10, 12))),
@@ -27,10 +29,10 @@ fn test_each_pattern_single_base() {
 
         let actual = regex.find(text);
 
-        assert_eq!(expected.is_some(), actual.is_some());
+        assert_eq!(expected.is_some(), actual.is_some(), "Expected Some(...) for {:?}", pattern);
         if let Some(content) = actual {
-            assert_eq!(expected.unwrap().0, content.start());
-            assert_eq!(expected.unwrap().1, content.end());
+            assert_eq!(expected.unwrap().0, content.start(), "Expected {} for {:?}", expected.unwrap().0, pattern);
+            assert_eq!(expected.unwrap().1, content.end(), "Expected {} for {:?}", expected.unwrap().1, pattern);
         }
     }
 }
@@ -44,10 +46,10 @@ fn test_each_pattern_multi_base() {
 
         let actual = regex.find(text);
 
-        assert_eq!(expected.is_some(), actual.is_some());
+        assert_eq!(expected.is_some(), actual.is_some(), "Expected Some(...) for {:?}", pattern);
         if let Some(content) = actual {
-            assert_eq!(expected.unwrap().0, content.start());
-            assert_eq!(expected.unwrap().1, content.end());
+            assert_eq!(expected.unwrap().0, content.start(), "Expected {} for {:?}", expected.unwrap().0, pattern);
+            assert_eq!(expected.unwrap().1, content.end(), "Expected {} for {:?}", expected.unwrap().1, pattern);
         }
     }
 }

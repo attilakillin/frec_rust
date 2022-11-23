@@ -102,7 +102,7 @@ impl WuManber {
                         let end = start + refd_pattern.len();
 
                         // If the whole pattern matches, return with a successful match.
-                        if end < text.len() && refd_pattern == &text[start..end] {
+                        if end <= text.len() && refd_pattern == &text[start..end] {
                             return Some((Match::new(start, end, &text[start..end]), candidate.pattern_id));
                         }
                     }
