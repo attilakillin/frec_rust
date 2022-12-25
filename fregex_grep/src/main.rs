@@ -1,8 +1,8 @@
 use clap::Parser;
 use fregex::{Regex, MultiRegex, RegexMatcher};
 use regex::Regex as OriginalRegex;
-use text::read_text;
-use std::process::exit;
+use text::{read_text, read_text_mmap};
+use std::{process::exit, str::from_utf8_unchecked};
 
 use crate::args::Args;
 
@@ -25,8 +25,8 @@ fn run_fregex(args: &Args, patterns: &[&str]) {
 
 
     // Read text in whole and find every single match.
-    let string = read_text(&args.file);
-    let mut text: &str = &string;
+    let string = read_text_mmap(&args.file);
+    let mut text: &str = unsafe { from_utf8_unchecked(&string[..]) };
     let mut offset = 0;
 
     while text.len() > 0 {
@@ -56,8 +56,8 @@ fn run_original(args: &Args, patterns: &[&str]) {
     };
 
     // Read text in whole and find every single match.
-    let string = read_text(&args.file);
-    let mut text: &str = &string;
+    let string = read_text_mmap(&args.file);
+    let mut text: &str = unsafe { from_utf8_unchecked(&string[..]) };
     let mut offset = 0;
 
     while text.len() > 0 {
